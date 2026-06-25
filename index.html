@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Wayfare — Story Threads</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- Thread progress -->
+  <nav class="thread" id="thread" aria-label="Setup progress">
+    <div class="thread-line"><div class="thread-fill" id="threadFill"></div></div>
+    <ol class="thread-steps">
+      <li data-step="settings" class="thread-step is-active"><span>01</span>Key</li>
+      <li data-step="profile" class="thread-step"><span>02</span>You</li>
+      <li data-step="character" class="thread-step"><span>03</span>Cast</li>
+      <li data-step="environment" class="thread-step"><span>04</span>World</li>
+      <li data-step="chat" class="thread-step"><span>05</span>Story</li>
+    </ol>
+  </nav>
+
+  <!-- STEP 1: Settings / API key -->
+  <section class="screen is-active" data-screen="settings">
+    <div class="card">
+      <p class="eyebrow">Before the story begins</p>
+      <h1>Connect your key</h1>
+      <p class="lede">Wayfare runs on your own Mistral API key. It stays on this device — saved only in your browser's local memory, never sent anywhere but Mistral's API.</p>
+
+      <label class="field">
+        <span class="field-label">Mistral API key</span>
+        <input type="password" id="apiKey" placeholder="••••••••••••••••••••" autocomplete="off" spellcheck="false">
+      </label>
+      <button class="link-btn" id="toggleKeyVisibility" type="button">Show key</button>
+
+      <div class="field-note">
+        <p>Don't have one yet? Create a free key at <strong>console.mistral.ai</strong> under API Keys.</p>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="settingsNext">Continue</button>
+      </div>
+      <p class="error" id="settingsError" hidden>Enter a key to continue — Wayfare can't reach the story engine without one.</p>
+    </div>
+  </section>
+
+  <!-- STEP 2: Profile -->
+  <section class="screen" data-screen="profile">
+    <div class="card">
+      <p class="eyebrow">A little about you</p>
+      <h1>Who's arriving?</h1>
+      <p class="lede">This shapes how characters greet you. Nothing here leaves your device.</p>
+
+      <label class="field">
+        <span class="field-label">Name</span>
+        <input type="text" id="userName" placeholder="What should characters call you?">
+      </label>
+
+      <label class="field">
+        <span class="field-label">Pronouns</span>
+        <select id="userPronouns">
+          <option value="they/them">they / them</option>
+          <option value="she/her">she / her</option>
+          <option value="he/him">he / him</option>
+          <option value="other">prefer not to say</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="field-label">A few words about you <span class="optional">(optional)</span></span>
+        <textarea id="userBio" rows="3" placeholder="Anything that helps a character know who they're talking to — your interests, your mood, what kind of story you're after."></textarea>
+      </label>
+
+      <div class="actions">
+        <button class="btn btn-ghost" data-back>Back</button>
+        <button class="btn btn-primary" id="profileNext">Continue</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3: Character select -->
+  <section class="screen" data-screen="character">
+    <div class="card card-wide">
+      <p class="eyebrow">Choose your cast</p>
+      <h1>Who do you want to meet?</h1>
+      <p class="lede">Each character carries their own world. Pick one to begin — you can always come back for another thread.</p>
+
+      <div class="filter-row" id="genderFilter">
+        <button class="chip is-active" data-filter="all">All</button>
+        <button class="chip" data-filter="Female">Female</button>
+        <button class="chip" data-filter="Male">Male</button>
+      </div>
+
+      <div class="character-grid" id="characterGrid"></div>
+
+      <div class="actions actions-spread">
+        <button class="btn btn-ghost" data-back>Back</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 4: Environment / scene select -->
+  <section class="screen" data-screen="environment">
+    <div class="card card-wide">
+      <p class="eyebrow"><span id="envCharName">Character</span>'s world</p>
+      <h1>Set the scene</h1>
+      <p class="lede" id="envCharDesc">Choose how this story opens.</p>
+
+      <div class="scene-list" id="sceneList"></div>
+
+      <div class="field-group">
+        <label class="field">
+          <span class="field-label">Tone <span class="optional">(optional nudge)</span></span>
+          <select id="sceneTone">
+            <option value="balanced">Let the scene decide</option>
+            <option value="lighter">Keep it light and warm</option>
+            <option value="tense">Lean into tension and mystery</option>
+            <option value="slow">Slow burn, take your time</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-ghost" data-back>Back</button>
+        <button class="btn btn-primary" id="envNext" disabled>Begin the story</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 5: Chatroom -->
+  <section class="screen" data-screen="chat">
+    <div class="chat-shell">
+      <header class="chat-header">
+        <button class="icon-btn" id="chatBack" aria-label="Back to setup">←</button>
+        <div class="chat-header-info">
+          <img id="chatAvatar" class="chat-avatar" src="" alt="">
+          <div>
+            <p class="chat-name" id="chatCharName">Character</p>
+            <p class="chat-scene" id="chatSceneName">Scene</p>
+          </div>
+        </div>
+        <button class="icon-btn" id="chatRestart" aria-label="Restart story">⟲</button>
+      </header>
+
+      <div class="chat-log" id="chatLog"></div>
+
+      <form class="chat-input-row" id="chatForm">
+        <textarea id="chatInput" placeholder="Write your reply…" rows="1" required></textarea>
+        <button type="submit" class="send-btn" aria-label="Send">↑</button>
+      </form>
+    </div>
+  </section>
+
+</div>
+
+<script src="characters.js"></script>
+<script src="app.js"></script>
+</body>
+  </html>
+
